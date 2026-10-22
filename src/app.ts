@@ -2,15 +2,15 @@
 import cookieParser from "cookie-parser";
 import express from "express";
 import cors from "cors";
-import * as helmetModule from "helmet";
+
 import { rateLimit } from "express-rate-limit";
 
 import authRoute from "./module/auth/auth.route.js";
 import submissionRoute from "./module/submissions/submission.routes.js";
 import reviewRoute from "./module/reviews/review.routes.js";
 import adminRoute from "./module/admin/admin.routes.js";
+import helmet from "helmet";
 
-const helmet = helmetModule.default;
 
 const app = express();
 
