@@ -2,7 +2,9 @@
 import cookieParser from "cookie-parser";
 import express from "express";
 import cors from "cors";
-import helmet from "helmet";
+import * as helmetModule from "helmet";
+
+const helmet = helmetModule.default;
 import { rateLimit } from "express-rate-limit";
 
 import authRoute from "./module/auth/auth.route.js";
