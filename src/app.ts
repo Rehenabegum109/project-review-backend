@@ -3,8 +3,6 @@ import cookieParser from "cookie-parser";
 import express from "express";
 import cors from "cors";
 import * as helmetModule from "helmet";
-
-const helmet = helmetModule.default;
 import { rateLimit } from "express-rate-limit";
 
 import authRoute from "./module/auth/auth.route.js";
@@ -12,26 +10,30 @@ import submissionRoute from "./module/submissions/submission.routes.js";
 import reviewRoute from "./module/reviews/review.routes.js";
 import adminRoute from "./module/admin/admin.routes.js";
 
+const helmet = helmetModule.default;
+
 const app = express();
 
 app.set("trust proxy", 1);
 
+// Security middleware
 app.use(helmet());
 
-const allowedOrigins = [
-  process.env.FRONTEND_URL,
-].filter((origin): origin is string => Boolean(origin));
+// Production frontend only
+const frontendUrl = process.env.FRONTEND_URL;
 
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: frontendUrl,
     credentials: true,
   }),
 );
 
+// Body parsing and cookies
 app.use(express.json());
 app.use(cookieParser());
 
+// Rate limiting
 app.use(
   rateLimit({
     windowMs: 15 * 60 * 1000,
@@ -45,6 +47,7 @@ app.use(
   }),
 );
 
+// Root endpoint
 app.get("/", (_req, res) => {
   res.json({
     success: true,
@@ -52,6 +55,7 @@ app.get("/", (_req, res) => {
   });
 });
 
+// Health endpoint
 app.get("/health", (_req, res) => {
   res.json({
     success: true,
@@ -59,6 +63,7 @@ app.get("/health", (_req, res) => {
   });
 });
 
+// API routes
 app.use("/api/auth", authRoute);
 app.use("/api/submissions", submissionRoute);
 app.use("/api/reviews", reviewRoute);
