@@ -3,7 +3,7 @@ import cookieParser from "cookie-parser";
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
-import rateLimit from "express-rate-limit";
+import { rateLimit } from "express-rate-limit";
 
 import authRoute from "./module/auth/auth.route.js";
 import submissionRoute from "./module/submissions/submission.routes.js";
