@@ -12,14 +12,26 @@ import adminRoute from "./module/admin/admin.routes.js";
 
 const app = express();
 
-// Vercel runs behind a trusted proxy.
 app.set("trust proxy", 1);
 
 app.use(helmet());
 
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  "https://review-flow-625j-wheat.vercel.app",
+  "http://localhost:3000",
+].filter((origin): origin is string => Boolean(origin));
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL,
+    origin: (origin, callback) => {
+      // Allow requests without an Origin header, such as server-to-server calls.
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   }),
 );
