@@ -8,6 +8,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+
 enum UserRole {
   STUDENT
   MENTOR
@@ -33,6 +34,7 @@ model User {
   reviews      Review[]            @relation("MentorReviews")
 }
 
+
 model ProjectSubmission {
   id           String           @id @default(cuid())
   title        String
@@ -40,17 +42,17 @@ model ProjectSubmission {
   githubUrl    String
   liveUrl      String?
   status       SubmissionStatus @default(PENDING)
-  studentId    String
+  studentId    String           @unique
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt
 
   student      User             @relation("StudentSubmissions", fields: [studentId], references: [id], onDelete: Cascade)
   review       Review?
 
-  @@index([studentId])
   @@index([status])
   @@index([createdAt])
 }
+
 
 model Review {
   id           String           @id @default(cuid())

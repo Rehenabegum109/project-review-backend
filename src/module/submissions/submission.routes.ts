@@ -1,5 +1,6 @@
 
 import { Router } from "express";
+import { submissionRateLimit } from "../../middleware/submission-rate-limit.middleware.js";
 import { authenticate, authorize } from "../../middleware/auth.middleware.js";
 import {
   submitProject,
@@ -12,9 +13,9 @@ submissionRoute.post(
   "/",
   authenticate,
   authorize("STUDENT"),
+  submissionRateLimit,
   submitProject,
 );
-
 submissionRoute.get(
   "/my",
   authenticate,
