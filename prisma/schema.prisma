@@ -1,0 +1,68 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  STUDENT
+  MENTOR
+  ADMIN
+}
+
+enum SubmissionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  password     String
+  role         UserRole @default(STUDENT)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  submissions  ProjectSubmission[] @relation("StudentSubmissions")
+  reviews      Review[]            @relation("MentorReviews")
+}
+
+model ProjectSubmission {
+  id           String           @id @default(cuid())
+  title        String
+  description  String           @db.Text
+  githubUrl    String
+  liveUrl      String?
+  status       SubmissionStatus @default(PENDING)
+  studentId    String
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  student      User             @relation("StudentSubmissions", fields: [studentId], references: [id], onDelete: Cascade)
+  review       Review?
+
+  @@index([studentId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model Review {
+  id           String           @id @default(cuid())
+  feedback     String           @db.Text
+  status       SubmissionStatus
+  submissionId String           @unique
+  mentorId     String
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  submission   ProjectSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  mentor       User              @relation("MentorReviews", fields: [mentorId], references: [id])
+
+  @@index([mentorId])
+}
