@@ -1,4 +1,5 @@
 import { prisma } from "../../lib/prisma.js";
+import { Prisma } from "@prisma/client";
 export const getMyReviews = async (studentId) => {
     return prisma.review.findMany({
         where: {

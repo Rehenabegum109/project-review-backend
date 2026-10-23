@@ -1,6 +1,6 @@
 
 import { prisma } from "../../lib/prisma.js";
-
+import { Prisma } from "@prisma/client";
 export const getMyReviews = async (studentId: string) => {
   return prisma.review.findMany({
     where: {
@@ -29,38 +29,40 @@ export const reviewSubmission = async (
   feedback: string,
   status: "APPROVED" | "REJECTED",
 ) => {
-  return prisma.$transaction(async (tx) => {
-    const submission = await tx.projectSubmission.findUnique({
-      where: { id: submissionId },
-      select: { id: true },
-    });
+  return prisma.$transaction(
+    async (tx: Prisma.TransactionClient) => {
+      const submission = await tx.projectSubmission.findUnique({
+        where: { id: submissionId },
+        select: { id: true },
+      });
 
-    if (!submission) {
-      throw new Error("SUBMISSION_NOT_FOUND");
-    }
+      if (!submission) {
+        throw new Error("SUBMISSION_NOT_FOUND");
+      }
 
-    const review = await tx.review.upsert({
-      where: { submissionId },
-      update: {
-        feedback: feedback.trim(),
-        status,
-        mentorId,
-      },
-      create: {
-        submissionId,
-        mentorId,
-        feedback: feedback.trim(),
-        status,
-      },
-    });
+      const review = await tx.review.upsert({
+        where: { submissionId },
+        update: {
+          feedback: feedback.trim(),
+          status,
+          mentorId,
+        },
+        create: {
+          submissionId,
+          mentorId,
+          feedback: feedback.trim(),
+          status,
+        },
+      });
 
-    await tx.projectSubmission.update({
-      where: { id: submissionId },
-      data: { status },
-    });
+      await tx.projectSubmission.update({
+        where: { id: submissionId },
+        data: { status },
+      });
 
-    return review;
-  });
+      return review;
+    },
+  );
 };
 
 export const getPendingSubmissions = async () => {

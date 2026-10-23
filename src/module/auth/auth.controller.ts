@@ -44,11 +44,11 @@ export const register = async (req: Request, res: Response) => {
 
     const user = await registerUser(name, email, password);
 
-    return res.status(201).json({
-      success: true,
-      message: "Registration successful",
-      data: { user },
-    });
+return res.status(201).json({
+  success: true,
+  message: "Registration successful",
+  data: { user },
+});
   } catch (error) {
     if (
       error instanceof Error &&

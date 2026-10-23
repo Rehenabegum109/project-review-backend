@@ -4,20 +4,21 @@ import express from "express";
 import cors from "cors";
 
 import { rateLimit } from "express-rate-limit";
-
+import helmetPackage from "helmet";
+import type { RequestHandler } from "express";
 import authRoute from "./module/auth/auth.route.js";
 import submissionRoute from "./module/submissions/submission.routes.js";
 import reviewRoute from "./module/reviews/review.routes.js";
 import adminRoute from "./module/admin/admin.routes.js";
-import helmet from "helmet";
 
 
+const helmetMiddleware =
+  helmetPackage as unknown as () => RequestHandler;
 const app = express();
 
 app.set("trust proxy", 1);
 
-// Security middleware
-app.use(helmet());
+app.use(helmetMiddleware());
 
 // Production frontend only
 const frontendUrl = process.env.FRONTEND_URL;

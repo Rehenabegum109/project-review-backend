@@ -1,22 +1,26 @@
 import cookieParser from "cookie-parser";
 import express from "express";
 import cors from "cors";
-import helmet from "helmet";
-import rateLimit from "express-rate-limit";
+import { rateLimit } from "express-rate-limit";
+import helmetPackage from "helmet";
 import authRoute from "./module/auth/auth.route.js";
 import submissionRoute from "./module/submissions/submission.routes.js";
 import reviewRoute from "./module/reviews/review.routes.js";
 import adminRoute from "./module/admin/admin.routes.js";
+const helmetMiddleware = helmetPackage;
 const app = express();
-// Vercel runs behind a trusted proxy.
 app.set("trust proxy", 1);
-app.use(helmet());
+app.use(helmetMiddleware());
+// Production frontend only
+const frontendUrl = process.env.FRONTEND_URL;
 app.use(cors({
-    origin: process.env.FRONTEND_URL,
+    origin: frontendUrl,
     credentials: true,
 }));
+// Body parsing and cookies
 app.use(express.json());
 app.use(cookieParser());
+// Rate limiting
 app.use(rateLimit({
     windowMs: 15 * 60 * 1000,
     limit: 100,
@@ -27,18 +31,21 @@ app.use(rateLimit({
         message: "Too many requests. Please try again later.",
     },
 }));
+// Root endpoint
 app.get("/", (_req, res) => {
     res.json({
         success: true,
         message: "Project Review Dashboard API is running!",
     });
 });
+// Health endpoint
 app.get("/health", (_req, res) => {
     res.json({
         success: true,
         message: "Server is healthy",
     });
 });
+// API routes
 app.use("/api/auth", authRoute);
 app.use("/api/submissions", submissionRoute);
 app.use("/api/reviews", reviewRoute);
